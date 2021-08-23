@@ -1,27 +1,30 @@
 # MPG-Nano
 Firmware and UCCNC macro for Arduino Nano based serial-over-USB interface for modified 4-axis Chinese MPG pendant.
+<p align="center"><img src="./pendant.jpg" width=150 /></p>
 
 # Functions
-The pendant LED flashes slowly when the axis select switch is in any position other than 'Off'. The step size select switch selects between step sizes of 1 micron/step, 10 microns/step and 100 microns/step. The pendant's side switch selects 1mm/step when pressed (requires wiring modification documented below). The pendant's LED flashes fast when 1mm/step is selected. The Arduino Nano's User LED flashes continuously to indicate that the firmware is running.
+The pendant LED flashes slowly when the axis select switch is in any position other than 'Off'. The step size select switch selects between step sizes of 1 micron/step, 10 microns/step and 100 microns/step. The pendant's side switch selects 1mm/step 'rapid mode' when pressed (if wiring modification documented below has been made). The pendant's LED flashes fast when 1mm/step is selected. The Arduino Nano's User LED flashes continuously to indicate that the firmware is running.
 
 ## Compiling & Programming
-To build the firmware, this project requires avr-gcc, avr-libc and avrdude to be correctly installed. To program the Arduino Nano, it must already be flashed with the Arduino bootloader. Attach the Nano to a USB port on your PC and execute `make program` from within the project directory. The Makefile assumes that the Nano presents itself as `/dev/ttyUSB0` when plugged into a USB port. Modify the `ARDUINO_SERIAL` variable in the Makefile if this is not the case.
+To build the firmware, this project requires avr-gcc, avr-libc and avrdude to be correctly installed on a host PC. To program the Arduino Nano, it must already be flashed with the Arduino bootloader. Attach the Nano to the PC's USB port and execute `make program` from within the project directory. The Makefile assumes that the Nano presents itself as `/dev/ttyUSB0` when plugged into a USB port. Modify the `ARDUINO_SERIAL` variable in the Makefile if this is not the case.
 
-The Makefile has only been tested in a Linux environment. It may need modification to work in Windows.
+The Makefile has only been tested in a Linux development environment. It may need modification to work in Windows.
 
 ## Side Button Modification
-The firmware assumes that the pendant's internal wiring has been modified so that the side button acts as a x1000 'rapid mode' selector instead of an enable button.
+The firmware supports an optional modification to the pendant's internal wiring such that the side button acts as a x1000 'rapid mode' selector instead of a pendant enable button.
 
-Modifications to the pendant's internal wiring are as follows.
+Modifications to the pendant's internal wiring are as follows:
 
-1. Unsolder red wire linking side button and internal PCB from button.
+1. Identify red wire linking side button to internal PCB. Unsolder wire from button.
 2. Unsolder blue/black wire from E-Stop button.
-3. Solder red wire to same pin, on side button, as the orange/black wire is soldered.
-4. Solder blue/black wire to side button pin where red wire was originally soldered.
-5. Add link between side button pin where orange/black wire is soldred to E-Stop button pin where blue/black wire was originally soldered.
+3. Solder red wire (unsoldered in Step 1) to same pin as orange/black wire, on side button.
+4. Solder blue/black wire (unsoldred in Step 2) to side button pin where red wire was originally soldered.
+5. Add link between side button pin, where orange/black wire is soldred, and E-Stop button pin where blue/black wire was originally soldered.
+
+<img src="./wiring-mod.jpg" width=400 />
 
 ## Connections to Arduino Nano
-The pendant's wires must be connected to the Arduino Nano's pins as follows:
+Assuming that the pendant has had its wiring modified to support 'rapid mode', it must be connected to the Arduino Nano's pins as follows:
 
 | Wire Color   | Arduino Pin | Description   |
 |--------------|-------------|---------------|
@@ -43,6 +46,8 @@ The pendant's wires must be connected to the Arduino Nano's pins as follows:
 | Red          | +5V         | Encoder +5V   |
 | Black        | GND         | Encoder GND   |
 | White/Black  | GND         | LED-          |
+
+If the pendant has not been modified then the Blue/Black wire must be connected to GND.
 
 In the author's implementation, the pendant cable was terminated with a 25-pin D-Type connector which mated with a connector mounted on a metal enclosure housing the Nano.
 
