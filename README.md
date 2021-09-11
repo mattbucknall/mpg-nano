@@ -51,5 +51,25 @@ If the pendant has not been modified then the Blue/Black wire must be connected 
 
 In the author's implementation, the pendant cable was terminated with a 25-pin D-Type connector which mated with a connector mounted on a metal enclosure housing the Nano.
 
+## Protocol
+
+The serial protocol implemented by the firmware operates at 38400 baud with an 8-bit, no-parity, 1 stop bit word format.
+
+### Reset Command
+Sending an upper-case `R` to the Nano will reset the firmware's encoder pulse count to zero. The firmware acknowledges the command by sending back `[R]` followed by a `CR` `LF` (carriage-return, line-feed) sequence.
+
+### Status Command
+Sending an upper-case 'S' to the Nano will cause the firmware to return `[Sxxxxxx]` followed by a `CR` `LF` sequence, where `xxxxxx` is a 6-digit/24-bit hexadecimal status word.
+
+The status word is encoded as follows:
+
+| Bit(s) | Description                                                                                                                                  |
+|--------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| 23 - 8 | A 16-bit two's complement value indicating the change in encoder wheel pulse count since the last <br>`S`<br> or <br>`R` command was issued. |
+| 7 - 6  | Unused, always zero.                                                                                                                         |
+| 5      | Set if E-Stop button is pressed.                                                                                                             |
+| 4 - 3  | A 2-bit field indicating the selected step size:<br><br>0: x1<br>1: x10<br>2: x100<br>3: x1000 (rapid mode button held down)                 |
+| 2 - 0  | A 3-bit field indicating which axis is selected:<br><br>0: Off<br>1: X<br>2: Y<br>3: Z<br>4: 4                                               |
+
 ## TODO
 Develop and document UCCNC macro loop.
