@@ -59,13 +59,13 @@ The serial protocol implemented by the firmware operates at 38400 baud with an 8
 Sending an upper-case `R` character to the Nano will reset the firmware's encoder pulse count to zero. The firmware acknowledges the command by sending back `[R]` followed by a `CR` `LF` (carriage-return, line-feed) sequence.
 
 ### Status Command
-Sending an upper-case 'S' character to the Nano will cause the firmware to return `[Sxxxxxx]` followed by a `CR` `LF` sequence, where `xxxxxx` is a 6-digit/24-bit hexadecimal status word.
+Sending an upper-case `S` character to the Nano will cause the firmware to return `[Sxxxxxx]` followed by a `CR` `LF` sequence, where `xxxxxx` is a 6-digit/24-bit hexadecimal status word.
 
 The status word is encoded as follows:
 
 | Bit(s) | Description                                                                                                                                  |
 |--------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| 23 - 8 | A 16-bit two's complement value indicating the change in encoder wheel pulse count since the last `S` or `R` command was issued.             |
+| 23 - 8 | A 16-bit two's complement value indicating the change in encoder wheel pulse count since the last `S` or `R` command was received            |
 | 7 - 6  | Unused, always zero.                                                                                                                         |
 | 5      | Set if E-Stop button is pressed.                                                                                                             |
 | 4 - 3  | A 2-bit field indicating the selected step size:<br><br>0: x1<br>1: x10<br>2: x100<br>3: x1000 (rapid mode button held down)                 |
