@@ -6,9 +6,9 @@ Firmware and UCCNC macro for Arduino Nano based serial-over-USB interface for mo
 The pendant LED flashes slowly when the axis select switch is in any position other than 'Off'. The step size select switch selects between step sizes of 1 micron/step, 10 microns/step and 100 microns/step. The pendant's side switch selects 1mm/step 'rapid mode' when pressed (if wiring modification documented below has been made). The pendant's LED flashes fast when 1mm/step is selected. The Arduino Nano's User LED flashes continuously to indicate that the firmware is running.
 
 ## Compiling & Programming
-To build the firmware, this project requires avr-gcc, avr-libc and avrdude to be correctly installed on a host PC. To program the Arduino Nano, it must already be flashed with the Arduino bootloader. Attach the Nano to the PC's USB port and execute `make program` from within the project directory. The Makefile assumes that the Nano presents itself as `/dev/ttyUSB0` when plugged into a USB port. Modify the `ARDUINO_SERIAL` variable in the Makefile if this is not the case.
+To build the firmware, this project requires avr-gcc, avr-libc and avrdude to be correctly installed on a host PC. Type `make program` to program the Nano (the Makefile for this project assumes that an AVR-ISP MkII programmer is being used).
 
-The Makefile has only been tested in a Linux development environment. It may need modification to work in Windows.
+The Makefile has only been tested in a Linux development environment. It may need modification to work in Windows/OS X.
 
 ## Side Button Modification
 The firmware supports an optional modification to the pendant's internal wiring such that the side button acts as a x1000 'rapid mode' selector instead of a pendant enable button.

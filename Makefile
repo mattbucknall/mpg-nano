@@ -2,9 +2,6 @@
 # MPG-Nano Firmware makefile.
 #
 
-# Arduino Nano serial port
-ARDUINO_SERIAL = /dev/ttyUSB0
-
 # C source files
 C_SRC = \
  app-encoder.c \
@@ -32,7 +29,7 @@ MCU = atmega328p
 MCU_FREQ = 16000000
 
 # programmer flags (for fuse, eeprom and flash programming)
-PROG_COMMON_FLAGS = -c arduino -P $(ARDUINO_SERIAL)
+PROG_COMMON_FLAGS = -c avrispmkII -P usb
 PROG_COMMON_FLAGS += -p m328p
 
 # toolchain prefix

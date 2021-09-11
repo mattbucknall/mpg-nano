@@ -46,9 +46,9 @@ ISR(PCINT1_vect) {
     // decode encoder inputs and adjust delta accordingly
     if ( (bits & (1 << APP_IO_C_ENC_AP)) && !(prev_bits & (1 << APP_IO_C_ENC_AP)) ) {
         if ( bits & (1 << APP_IO_C_ENC_BP) ) {
-            m_delta++;
-        } else {
             m_delta--;
+        } else {
+            m_delta++;
         }
     }
 
