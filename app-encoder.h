@@ -46,4 +46,10 @@ void app_encoder_reset(void);
  */
 int16_t app_encoder_delta(void);
 
+
+/**
+ * To be called on each iteration of main loop.
+ */
+void app_encoder_loop(void);
+
 #endif // _APP_ENCODER_H_

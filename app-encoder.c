@@ -32,37 +32,44 @@
 
 
 static volatile int16_t m_delta;
+static uint8_t m_prev_bits;
 
 
 /**
  * Pin Change Interrupt 1 ISR. Updates delta count every time encoder inputs change state.
  */
 ISR(PCINT1_vect) {
-    static uint8_t prev_bits;
+    // not using PROGMEM because this LUT is small and better off in RAM
+    static const int8_t LUT[16] = {
+         0,  1, -1,  0,
+        -1,  0,  0,  1,
+         1,  0,  0, -1,
+         0, -1,  1,  0
+    };
 
     // capture encoder input states
-    uint8_t bits = PINC;
+    uint8_t bits = ~PINC;
+    int8_t dir;
+    int16_t new_delta;
 
-    // decode encoder inputs and adjust delta accordingly
-    if ( (bits & (1 << APP_IO_C_ENC_AP)) && !(prev_bits & (1 << APP_IO_C_ENC_AP)) ) {
-        if ( bits & (1 << APP_IO_C_ENC_BP) ) {
-            m_delta--;
-        } else {
-            m_delta++;
-        }
-    }
+    // decode direction of quadrature transition
+    bits = (bits & (1 << APP_IO_C_ENC_AP)) | ((bits & (1 << APP_IO_C_ENC_BP)) >> 1);
+    dir = LUT[bits | m_prev_bits];
 
-    // save encoder input states for next iteration
-    prev_bits = bits;
+    new_delta = m_delta + dir;
+
+    m_delta = new_delta;
+    m_prev_bits = bits << 2;
 }
 
 
 void app_encoder_reset(void) {
     // clear delta counter
     cli();
-    m_delta = 0;
+    m_delta -= (int16_t) (((uint16_t) m_delta) & 0xFFFC);
     sei();
 }
+
 
 int16_t app_encoder_delta(void) {
     int16_t delta;
@@ -70,17 +77,43 @@ int16_t app_encoder_delta(void) {
     // capture and clear delta counter
     cli();
     delta = m_delta;
-    m_delta = 0;
+    m_delta -= (int16_t) (((uint16_t) m_delta) & 0xFFFC);
     sei();
 
-    return delta;
+    return (int16_t) (delta >> 2);
+}
+
+
+void app_encoder_loop(void) {
+    // not using PROGMEM because this LUT is small and better off in RAM
+    static const int8_t LUT[16] = {
+             0,  1, -1,  0,
+            -1,  0,  0,  1,
+             1,  0,  0, -1,
+             0, -1,  1,  0
+    };
+
+    // capture encoder input states
+    uint8_t bits = PINC;
+    int8_t dir;
+    int16_t new_delta;
+
+    // decode direction of quadrature transition
+    bits = (bits & (1 << APP_IO_C_ENC_AP)) | ((bits & (1 << APP_IO_C_ENC_BP)) >> 1);
+    dir = LUT[bits | m_prev_bits];
+
+    new_delta = m_delta + dir;
+
+    m_delta = new_delta;
+    m_prev_bits = bits << 2;
 }
 
 
 void app_encoder_init(void) {
-    // unmask encoder inputs for PCIE1
-    PCMSK1 |= (1 << APP_IO_C_ENC_BP) | (1 << APP_IO_C_ENC_AP);
+    uint8_t bits;
 
-    // enable PCIE1
-    PCICR |= (1 << PCIE1);
+    // capture initial state
+    bits = PINC;
+    m_prev_bits = (bits & (1 << APP_IO_C_ENC_AP)) | ((bits & (1 << APP_IO_C_ENC_BP)) >> 1);
+    m_prev_bits = m_prev_bits << 2;
 }

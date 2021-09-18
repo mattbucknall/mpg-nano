@@ -71,5 +71,6 @@ int main(void) {
 
         // handle serial comms
         app_serial_loop();
+        app_encoder_loop();
     }
 }

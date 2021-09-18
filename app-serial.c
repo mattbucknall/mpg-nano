@@ -166,7 +166,7 @@ void app_serial_loop(void) {
 
     case APP_SERIAL_STATE_HAVE_STATUS_REQ:
         // get encoder delta
-        enc_delta = app_encoder_delta();
+        enc_delta = (uint16_t) app_encoder_delta();
 
         // encode switch states
         switch_bits = (uint8_t) app_switch_axis();
