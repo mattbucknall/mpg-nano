@@ -31,43 +31,13 @@
 #include "app-io.h"
 
 
-static volatile int16_t m_delta;
+static int16_t m_delta;
 static uint8_t m_prev_bits;
-
-
-/**
- * Pin Change Interrupt 1 ISR. Updates delta count every time encoder inputs change state.
- */
-ISR(PCINT1_vect) {
-    // not using PROGMEM because this LUT is small and better off in RAM
-    static const int8_t LUT[16] = {
-         0,  1, -1,  0,
-        -1,  0,  0,  1,
-         1,  0,  0, -1,
-         0, -1,  1,  0
-    };
-
-    // capture encoder input states
-    uint8_t bits = ~PINC;
-    int8_t dir;
-    int16_t new_delta;
-
-    // decode direction of quadrature transition
-    bits = (bits & (1 << APP_IO_C_ENC_AP)) | ((bits & (1 << APP_IO_C_ENC_BP)) >> 1);
-    dir = LUT[bits | m_prev_bits];
-
-    new_delta = m_delta + dir;
-
-    m_delta = new_delta;
-    m_prev_bits = bits << 2;
-}
 
 
 void app_encoder_reset(void) {
     // clear delta counter
-    cli();
-    m_delta -= (int16_t) (((uint16_t) m_delta) & 0xFFFC);
-    sei();
+    m_delta = 0;
 }
 
 
@@ -75,16 +45,17 @@ int16_t app_encoder_delta(void) {
     int16_t delta;
 
     // capture and clear delta counter
-    cli();
     delta = m_delta;
-    m_delta -= (int16_t) (((uint16_t) m_delta) & 0xFFFC);
-    sei();
+    m_delta = 0;
 
-    return (int16_t) (delta >> 2);
+    return delta;
 }
 
 
 void app_encoder_loop(void) {
+    static uint8_t phase;
+    static uint8_t hyst;
+
     // not using PROGMEM because this LUT is small and better off in RAM
     static const int8_t LUT[16] = {
              0,  1, -1,  0,
@@ -96,16 +67,28 @@ void app_encoder_loop(void) {
     // capture encoder input states
     uint8_t bits = PINC;
     int8_t dir;
-    int16_t new_delta;
 
     // decode direction of quadrature transition
     bits = (bits & (1 << APP_IO_C_ENC_AP)) | ((bits & (1 << APP_IO_C_ENC_BP)) >> 1);
     dir = LUT[bits | m_prev_bits];
-
-    new_delta = m_delta + dir;
-
-    m_delta = new_delta;
     m_prev_bits = bits << 2;
+
+    // update phase
+    phase = (phase + dir) & 3;
+
+    // apply hysteresis and update delta
+    if ( phase == 0 && !hyst ) {
+        if ( dir > 0 ) {
+            m_delta++;
+        } else if ( dir < 0 ) {
+            m_delta--;
+        }
+
+        hyst = 1;
+    }
+    else if ( phase == 2 ) {
+        hyst = 0;
+    }
 }
 
 
