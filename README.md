@@ -1,5 +1,5 @@
 # MPG-Nano
-Firmware and UCCNC macro for Arduino Nano based serial-over-USB interface for modified 4-axis Chinese
+Firmware and UCCNC plugin for Arduino Nano based serial-over-USB interface for modified 4-axis Chinese
 MPG pendant.
 <p align="center"><img src="./pendant.jpg" width=150 /></p>
 
