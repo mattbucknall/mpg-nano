@@ -1,17 +1,22 @@
 # MPG-Nano
-Firmware and UCCNC macro for Arduino Nano based serial-over-USB interface for modified 4-axis Chinese MPG pendant.
+Firmware and UCCNC macro for Arduino Nano based serial-over-USB interface for modified 4-axis Chinese
+MPG pendant.
 <p align="center"><img src="./pendant.jpg" width=150 /></p>
 
 # Functions
-The pendant LED flashes slowly when the axis select switch is in any position other than 'Off'. The step size select switch selects between step sizes of 1 micron/step, 10 microns/step and 100 microns/step. The pendant's side switch selects 1mm/step 'rapid mode' when pressed (if wiring modification documented below has been made). The pendant's LED flashes fast when 1mm/step is selected. The Arduino Nano's User LED flashes continuously to indicate that the firmware is running.
+The pendant LED flashes slowly when the axis select switch is in any position other than 'Off'. The step
+size select switch selects between step sizes of 1 micron/step, 10 microns/step and 100 microns/step. The pendant's side switch selects 1mm/step 'rapid mode' when pressed (if wiring modification documented below has been made). The pendant's LED flashes fast when 1mm/step is selected. The Arduino Nano's User LED flashes continuously to indicate that the firmware is running.
 
 ## Compiling & Programming
-To build the firmware, this project requires avr-gcc, avr-libc and avrdude to be correctly installed on a host PC. Type `make program` to program the Nano (the Makefile for this project assumes that an AVR-ISP MkII programmer is being used).
+To build the firmware, this project requires avr-gcc, avr-libc and avrdude to be correctly installed on
+a host PC. Type `make program` to program the Nano (the Makefile for this project assumes that an AVR-ISP MkII programmer is being used).
 
-The Makefile has only been tested in a Linux development environment. It may need modification to work in Windows/OS X.
+The Makefile has only been tested in a Linux development environment. It may need modification to work in
+Windows/OS X.
 
 ## Side Button Modification
-The firmware supports an optional modification to the pendant's internal wiring such that the side button acts as a x1000 'rapid mode' selector instead of a pendant enable button.
+The firmware supports an optional modification to the pendant's internal wiring such that the side button
+acts as a x1000 'rapid mode' selector instead of a pendant enable button.
 
 Modifications to the pendant's internal wiring are as follows:
 
@@ -51,13 +56,17 @@ If the pendant has not been modified then the Blue/Black wire must be connected 
 
 ## Protocol
 
-The serial protocol implemented by the firmware operates at 38400 baud with an 8-bit, no-parity, 1 stop bit word format.
+The serial protocol implemented by the firmware operates at 38400 baud with an 8-bit, no-parity, 1 stop
+bit word format.
 
 ### Reset Command
-Sending an upper-case `R` character to the Nano will reset the firmware's encoder pulse count to zero. The firmware acknowledges the command by sending back `[R]` followed by a `CR` `LF` (carriage-return, line-feed) sequence.
+Sending an upper-case `R` character to the Nano will reset the firmware's encoder pulse count to zero.
+The firmware acknowledges the command by sending back `[R]` followed by a `CR` `LF` (carriage-return,
+line-feed) sequence.
 
 ### Status Command
-Sending an upper-case `S` character to the Nano will cause the firmware to return `[Sxxxxxx]` followed by a `CR` `LF` sequence, where `xxxxxx` is a 6-digit/24-bit hexadecimal status word.
+Sending an upper-case `S` character to the Nano will cause the firmware to return `[Sxxxxxx]` followed by
+a `CR` `LF` sequence, where `xxxxxx` is a 6-digit/24-bit hexadecimal status word.
 
 The status word is encoded as follows:
 
@@ -70,5 +79,20 @@ The status word is encoded as follows:
 | 2 - 0  | A 3-bit field indicating which axis is selected:<br><br>0: Off<br>1: X<br>2: Y<br>3: Z<br>4: 4                                               |
 
 ### UCCNC Plugin
+If you are using a genuine Arduino Nano, ensure you have the FTDI VCP driver installed
+(https://ftdichip.com/drivers/vcp-drivers/). If you are using a CH340 based Arduino Nano clone,
+ensure you have the CH340 driver installed
+(https://learn.sparkfun.com/tutorials/how-to-install-ch340-drivers/all).
+
+To install the MPG-Nano plugin, copy the DLL in this repository to UCCNC's Plugins folder, then enable
+the plugin as described in UCCNC's manual ('Installing plugins'). Once the plugin is enabled and UCCNC has
+been restarted, connect the Arduino Nano (running the MPG-Nano firmware) to your PC. Navigate to UCCNC's
+'Plugins configuration' window and click the 'Configure' button for MPG-Nano, select the COM port that
+Windows has assigned to the Nano, then check that 'Status' changes to 'OK'.
+
+If you are not sure which COM port has been assigned to the Nano, go to Windows Device Manager, expand
+the 'Ports' section in the device list, then unplug the Nano and plug it back in - You should see a COM
+port disappear then reappear in the device list - This is the port assigned to the Nano.
+
 Source code for the UCCNC MPG-Nano plugin can be found here:
 https://github.com/mattbucknall/mpg-nano-plugin
